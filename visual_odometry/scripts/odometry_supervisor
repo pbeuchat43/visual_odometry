@@ -1,0 +1,201 @@
+#!/usr/bin/env python3
+"""Restart only the estimator/adapter pair at a camera timing boundary.
+
+The runtime still owns the enclosing native process tree or Docker container.
+Unexpected child exits remain fatal. No camera handles, payload relay or SDK.
+"""
+# Copyright (c) 2026 Paul N. Beuchat. MIT License.
+import argparse
+import copy
+import hashlib
+import json
+import os
+from pathlib import Path
+import signal
+import subprocess
+import time
+
+
+class ChildGroup:
+    def __init__(self, argv):
+        self.process = subprocess.Popen(argv, start_new_session=True)
+        self.pid = self.process.pid
+        self.stopping_since = None
+        self.stage = 0
+
+    def send(self, value):
+        try:
+            os.killpg(self.pid, value)
+        except ProcessLookupError:
+            pass
+
+    def stop(self, now):
+        if self.stopping_since is None:
+            self.stopping_since = now
+            self.send(signal.SIGINT)
+
+    def alive(self):
+        # A launcher may exit before its descendants. Do not overlap trackers.
+        for path in Path('/proc').glob('[0-9]*/stat'):
+            try:
+                fields = path.read_text().rsplit(')', 1)[1].split()
+                if int(fields[2]) == self.pid and fields[0] != 'Z':
+                    return True
+            except (FileNotFoundError, ProcessLookupError, PermissionError):
+                continue
+        return False
+
+    def stopped(self, now):
+        self.process.poll()
+        if self.stopping_since is None:
+            return False
+        elapsed = now-self.stopping_since
+        if elapsed >= 4 and self.stage < 2:
+            self.send(signal.SIGKILL)
+            self.stage = 2
+        elif elapsed >= 2 and self.stage < 1:
+            self.send(signal.SIGTERM)
+            self.stage = 1
+        done = self.process.returncode is not None and not self.alive()
+        if not done and elapsed > 8:
+            raise RuntimeError('estimator process group did not stop')
+        return done
+
+
+def finish_child(child):
+    # Runtime signals the whole cgroup; ROS launch can relay the same signal
+    # again. A second interrupt must not abort our bounded descendant cleanup.
+    for number in (signal.SIGINT, signal.SIGTERM):
+        signal.signal(number, signal.SIG_IGN)
+    if child is not None:
+        child.stop(time.monotonic())
+        while not child.stopped(time.monotonic()):
+            time.sleep(.05)
+
+
+def main():
+    import rclpy
+    from rclpy.node import Node
+    from rclpy.qos import qos_profile_sensor_data
+    from rgbd_camera_interfaces.msg import Status as CameraStatus
+    from visual_odometry_interfaces.msg import Status
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--config', required=True, type=Path)
+    args, ros_args = parser.parse_known_args()
+    config = json.loads(args.config.read_text())  # Validated by the enclosing launch.
+    identity = hashlib.sha256(json.dumps(config, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
+    boot = Path('/proc/sys/kernel/random/boot_id').read_text().strip()
+    rclpy.init(args=ros_args)
+    node = Node('odometry_supervisor', namespace=config['namespace'])
+    publisher = node.create_publisher(Status, config['namespace']+'/odometry/status', qos_profile_sensor_data)
+    camera = None
+    upstream = None
+    child = None
+    generation = None
+    child_started = 0.
+    restart_quiet_until = 0.
+    recovery = False
+    failure = None
+    ever_tracking = False
+
+    def fresh(message, now):
+        return message.clock_domain == 'linux_monotonic:'+boot and message.observed_ns > 0 and \
+            0 <= now-message.observed_ns <= min(message.expires_after_ns, 1_000_000_000)
+
+    def camera_received(message):
+        nonlocal camera
+        if fresh(message, time.monotonic_ns()) and (camera is None or message.observed_ns > camera.observed_ns):
+            camera = message
+
+    def status_received(message):
+        nonlocal upstream, failure, ever_tracking
+        if not fresh(message, time.monotonic_ns()):
+            return
+        if message.configuration_id != identity:
+            failure = 'odometry_configuration_mismatch'
+            return
+        if child is not None and child.stopping_since is None and message.observed_ns >= int(child_started*1e9):
+            upstream = message
+            ever_tracking |= message.state == 'tracking'
+
+    camera_sub = node.create_subscription(CameraStatus, config['camera_node']+'/status', camera_received, qos_profile_sensor_data)
+    status_sub = node.create_subscription(Status, config['namespace']+'/odometry/internal_status', status_received, qos_profile_sensor_data)
+
+    def status():
+        now = time.monotonic_ns()
+        output = copy.deepcopy(upstream) if upstream is not None else Status()
+        output.header.stamp = node.get_clock().now().to_msg()
+        output.configuration_id = identity
+        output.mode = config['mode']
+        output.clock_domain = 'linux_monotonic:'+boot
+        output.observed_ns = now
+        output.expires_after_ns = 1_000_000_000
+        if failure:
+            output.state, output.reason = 'error', failure
+        elif child is None or child.stopping_since is not None or recovery:
+            output.state = 'lost' if ever_tracking else 'initializing'
+            output.reason = 'camera_clock_recovery' if recovery else 'waiting_for_camera'
+            output.pending = 0
+        elif upstream is None or not fresh(upstream, now):
+            output.state, output.reason = 'initializing', 'waiting_for_restarted_estimator'
+        publisher.publish(output)
+
+    timer = node.create_timer(.2, status)
+    try:
+        while rclpy.ok():
+            rclpy.spin_once(node, timeout_sec=.05)
+            now = time.monotonic()
+            if camera_sub.get_publisher_count() > 1 or status_sub.get_publisher_count() > 1:
+                failure = 'multiple_input_publishers'
+            camera_fresh = camera is not None and fresh(camera, int(now*1e9))
+            if camera_fresh and camera.state == 'error':
+                failure = 'camera_error: '+camera.detail[:192]
+            changed = camera_fresh and generation is not None and camera.generation != generation
+            clock_hold = camera_fresh and camera.clock_state == 'recovering'
+            reset_requested = upstream is not None and upstream.reason == 'camera_clock_reset_required'
+            if changed or clock_hold or reset_requested:
+                recovery = True
+                if child is not None:
+                    child.stop(now)
+            if child is not None:
+                if child.stopping_since is not None:
+                    if child.stopped(now):
+                        child = None
+                        upstream = None
+                        restart_quiet_until = now+.3
+                elif child.process.poll() is not None:
+                    failure = 'required_odometry_process_exited'
+                elif upstream is not None and upstream.state == 'error':
+                    failure = upstream.reason
+                elif now-child_started > 90 and (upstream is None or not fresh(upstream, int(now*1e9))):
+                    failure = 'odometry_status_unavailable'
+            ready = camera_fresh and camera.clock_state != 'recovering' and camera.stereo_state == 'streaming' and \
+                (config['mode'] != 'vio' or camera.combined_imu_state == 'streaming')
+            if child is None and ready and not failure and now >= restart_quiet_until and status_sub.get_publisher_count() == 0:
+                generation = camera.generation
+                child_started = time.monotonic()
+                child = ChildGroup(['ros2', 'launch', 'visual_odometry', 'odometry.launch.py',
+                                    'config_file:='+str(args.config), 'camera_generation:='+generation])
+                recovery = False
+                node.get_logger().info('Started estimator for camera generation '+generation)
+            if failure:
+                status()
+                return 1
+    except KeyboardInterrupt:
+        pass
+    except Exception as exc:
+        failure = str(exc)
+        status()
+        node.get_logger().error(failure)
+        return 1
+    finally:
+        finish_child(child)
+        node.destroy_timer(timer)
+        node.destroy_node()
+        if rclpy.ok():
+            rclpy.shutdown()
+    return 0
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())

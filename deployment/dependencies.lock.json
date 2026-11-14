@@ -1,0 +1,91 @@
+{
+  "schema_version": 1,
+  "base_image": "nvcr.io/nvidia/isaac/ros@sha256:c14ba7a86400f968069eab807595b3d01518abbe287d8cb85092101fe18e98af",
+  "upstream_version": "4.6.0-0noble.20260818193828000",
+  "native_archives": [
+    {
+      "name": "libcvcuda0",
+      "version": "0.14.0",
+      "sha256": "f68bb60bfd961d475249ad906eea94bd0f83ba8042ed57ce5f3f25d412d64eda",
+      "url": "https://isaac.download.nvidia.com/isaac-ros/release-4.6/pool/main/libc/libcvcuda0/libcvcuda0_0.14.0_arm64.deb"
+    },
+    {
+      "name": "ros-jazzy-isaac-common",
+      "version": "4.6.0-0noble.20260818193828000",
+      "sha256": "c119f545d9b5ff5a9fba8a87fe4b4b3f702bfede0d732afa8bab1d0e1577a273",
+      "url": "https://isaac.download.nvidia.com/isaac-ros/release-4.6/pool/main/r/ros-jazzy-isaac-common/ros-jazzy-isaac-common_4.6.0-0noble.20260818193828000_arm64.deb"
+    },
+    {
+      "name": "ros-jazzy-isaac-ros-common",
+      "version": "4.6.0-0noble.20260818193828000",
+      "sha256": "352f9f6082855fb998740a8a4602b192b36a1dae6095ffd73c6479eb9dfe8a95",
+      "url": "https://isaac.download.nvidia.com/isaac-ros/release-4.6/pool/main/r/ros-jazzy-isaac-ros-common/ros-jazzy-isaac-ros-common_4.6.0-0noble.20260818193828000_arm64.deb"
+    },
+    {
+      "name": "ros-jazzy-isaac-ros-cvcuda-utils",
+      "version": "4.6.0-0noble.20260818193828000",
+      "sha256": "2a75300a0d12a0e1bc0b408ae8216c599aef8b1dc7a780d1fe1c521a1d5acd82",
+      "url": "https://isaac.download.nvidia.com/isaac-ros/release-4.6/pool/main/r/ros-jazzy-isaac-ros-cvcuda-utils/ros-jazzy-isaac-ros-cvcuda-utils_4.6.0-0noble.20260818193828000_arm64.deb"
+    },
+    {
+      "name": "ros-jazzy-isaac-ros-image-proc",
+      "version": "4.6.0-0noble.20260818193828000",
+      "sha256": "06f992547530cf30a34279dbaac40fcdce9cb5f44e7a58deaf9ab65636716c2e",
+      "url": "https://isaac.download.nvidia.com/isaac-ros/release-4.6/pool/main/r/ros-jazzy-isaac-ros-image-proc/ros-jazzy-isaac-ros-image-proc_4.6.0-0noble.20260818193828000_arm64.deb"
+    },
+    {
+      "name": "ros-jazzy-isaac-ros-nitros",
+      "version": "4.6.0-0noble.20260818193828000",
+      "sha256": "c5867953a0dd6b1aa97778b65f59131d384e04f6af978c88b9f2d8206906a664",
+      "url": "https://isaac.download.nvidia.com/isaac-ros/release-4.6/pool/main/r/ros-jazzy-isaac-ros-nitros/ros-jazzy-isaac-ros-nitros_4.6.0-0noble.20260818193828000_arm64.deb"
+    },
+    {
+      "name": "ros-jazzy-isaac-ros-nitros-image-type",
+      "version": "4.6.0-0noble.20260818193828000",
+      "sha256": "b515e5c210829d6972bdf22c83b191472ee3a439c1a497fb01947dd91cc4ec3c",
+      "url": "https://isaac.download.nvidia.com/isaac-ros/release-4.6/pool/main/r/ros-jazzy-isaac-ros-nitros-image-type/ros-jazzy-isaac-ros-nitros-image-type_4.6.0-0noble.20260818193828000_arm64.deb"
+    },
+    {
+      "name": "ros-jazzy-isaac-ros-nitros-tensor-list-type",
+      "version": "4.6.0-0noble.20260818193828000",
+      "sha256": "01f917dc7b2ed3106582e41eb0de03f7bcc95be339476b8f7e91e3a4d64b2cce",
+      "url": "https://isaac.download.nvidia.com/isaac-ros/release-4.6/pool/main/r/ros-jazzy-isaac-ros-nitros-tensor-list-type/ros-jazzy-isaac-ros-nitros-tensor-list-type_4.6.0-0noble.20260818193828000_arm64.deb"
+    },
+    {
+      "name": "ros-jazzy-isaac-ros-tensor-list-interfaces",
+      "version": "4.6.0-0noble.20260818193828000",
+      "sha256": "ff330428cb5d309e96e83507a6145ef4fd4a51ccf3ceb629d71490947c77e68f",
+      "url": "https://isaac.download.nvidia.com/isaac-ros/release-4.6/pool/main/r/ros-jazzy-isaac-ros-tensor-list-interfaces/ros-jazzy-isaac-ros-tensor-list-interfaces_4.6.0-0noble.20260818193828000_arm64.deb"
+    },
+    {
+      "name": "ros-jazzy-isaac-ros-visual-slam",
+      "version": "4.6.0-0noble.20260818193828000",
+      "sha256": "96e73d4de2905b694797d8777419dc991e4d064117de5bfc795ca5d47653fb8f",
+      "url": "https://isaac.download.nvidia.com/isaac-ros/release-4.6/pool/main/r/ros-jazzy-isaac-ros-visual-slam/ros-jazzy-isaac-ros-visual-slam_4.6.0-0noble.20260818193828000_arm64.deb"
+    },
+    {
+      "name": "ros-jazzy-isaac-ros-visual-slam-interfaces",
+      "version": "4.6.0-0noble.20260818193828000",
+      "sha256": "b4e0e77f9ebc224db73d9d24478f3b5d3027202068f25b270b3e8fe290ff6003",
+      "url": "https://isaac.download.nvidia.com/isaac-ros/release-4.6/pool/main/r/ros-jazzy-isaac-ros-visual-slam-interfaces/ros-jazzy-isaac-ros-visual-slam-interfaces_4.6.0-0noble.20260818193828000_arm64.deb"
+    },
+    {
+      "name": "ros-jazzy-isaac-ros-vpi-utils",
+      "version": "4.6.0-0noble.20260818193828000",
+      "sha256": "eb099d6c214608380efdaaabe6d3f5e59065061ce952df5e3b21432e6da97b1f",
+      "url": "https://isaac.download.nvidia.com/isaac-ros/release-4.6/pool/main/r/ros-jazzy-isaac-ros-vpi-utils/ros-jazzy-isaac-ros-vpi-utils_4.6.0-0noble.20260818193828000_arm64.deb"
+    },
+    {
+      "name": "ros-jazzy-negotiated",
+      "version": "0.1.0-0noble",
+      "sha256": "fe8c95c4f2f3192d14af0ba08b4ab4763f9ebc044949e1f123c9998dec390a6e",
+      "url": "https://isaac.download.nvidia.com/isaac-ros/release-4.6/pool/main/r/ros-jazzy-negotiated/ros-jazzy-negotiated_0.1.0-0noble_arm64.deb"
+    },
+    {
+      "name": "ros-jazzy-negotiated-interfaces",
+      "version": "0.1.0-0noble",
+      "sha256": "177f084ccefe09c6fed4e168fa520a9cc6e4877fbea5aa611f696bd6e0f242ef",
+      "url": "https://isaac.download.nvidia.com/isaac-ros/release-4.6/pool/main/r/ros-jazzy-negotiated-interfaces/ros-jazzy-negotiated-interfaces_0.1.0-0noble_arm64.deb"
+    }
+  ]
+}

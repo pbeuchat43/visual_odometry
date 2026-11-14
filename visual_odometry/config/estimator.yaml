@@ -1,0 +1,28 @@
+# Isaac ROS v4.6-0. Keep these effective values in configuration identity.
+num_cameras: 2
+min_num_images: 2
+override_publishing_stamp: false
+image_qos: SENSOR_DATA
+imu_qos: SENSOR_DATA
+image_buffer_size: 10
+imu_buffer_size: 50
+sync_matching_threshold_ms: 1.0
+image_jitter_threshold_ms: 40.0
+imu_jitter_threshold_ms: 10.0
+enable_localization_n_mapping: false
+enable_ground_constraint_in_odometry: false
+enable_ground_constraint_in_slam: false
+enable_slam_visualization: false
+enable_observations_view: false
+enable_landmarks_view: false
+enable_debug_mode: false
+debug_imu_mode: false
+localize_on_startup: false
+publish_map_to_odom_tf: false
+publish_odom_to_base_tf: false
+# Vendor defaults, not measured device noise. SI units documented in interface.md.
+gyro_noise_density: 0.000244
+gyro_random_walk: 0.000019393
+accel_noise_density: 0.001862
+accel_random_walk: 0.003
+calibration_frequency: 200.0

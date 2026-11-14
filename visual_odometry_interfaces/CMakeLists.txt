@@ -1,0 +1,11 @@
+cmake_minimum_required(VERSION 3.20)
+project(visual_odometry_interfaces)
+find_package(ament_cmake REQUIRED)
+find_package(rosidl_default_generators REQUIRED)
+find_package(nav_msgs REQUIRED)
+find_package(std_msgs REQUIRED)
+find_package(rgbd_camera_interfaces 0.2.0 REQUIRED)
+rosidl_generate_interfaces(${PROJECT_NAME} "msg/Estimate.msg" "msg/Status.msg"
+  DEPENDENCIES nav_msgs std_msgs rgbd_camera_interfaces)
+ament_export_dependencies(rosidl_default_runtime)
+ament_package()

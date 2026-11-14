@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>visual_odometry</name><version>0.2.0</version>
+  <description>Isaac ROS VO/VIO bringup and bounded capture-aware output adapter.</description>
+  <maintainer email="pbeuchat@unimelb.edu.au">Paul N. Beuchat</maintainer>
+  <license>MIT</license><buildtool_depend>ament_cmake</buildtool_depend>
+  <depend>rclcpp</depend><depend>rcl_interfaces</depend><depend>nav_msgs</depend>
+  <depend version_gte="0.3.0">rgbd_camera_interfaces</depend>
+  <depend>visual_odometry_interfaces</depend><depend>isaac_ros_visual_slam_interfaces</depend>
+  <exec_depend>isaac_ros_visual_slam</exec_depend><exec_depend>launch_ros</exec_depend>
+  <exec_depend>rclcpp_components</exec_depend><exec_depend>python3-yaml</exec_depend>
+  <exec_depend>rclpy</exec_depend>
+  <export><build_type>ament_cmake</build_type></export>
+</package>
