@@ -10,13 +10,13 @@ Both use the same capture-aware estimate and health contract. See the
 [interface](docs/interface.md), [installation](docs/installation.md), and
 [deployment settings and troubleshooting](https://github.com/pbeuchat43/robot_deployment/blob/dev/docs/visual-odometry-troubleshooting.md).
 
-This repository is under development. The initial reference is Ubuntu 24.04
-arm64, ROS 2 Jazzy and Isaac ROS 4.6 on a compatible Jetson. Stationary fixture
-measurements establish feasibility, not driving accuracy or deployment acceptance.
+The reference platform is Ubuntu 24.04 arm64, ROS 2 Jazzy and Isaac ROS 4.6
+on a compatible Jetson. See the [native and Docker comparison](https://github.com/pbeuchat43/robot_deployment/blob/dev/docs/evidence/2026-11-13-visual-odometry/README.md).
 
-The [initial integration evidence](https://github.com/pbeuchat43/robot_deployment/blob/dev/docs/evidence/2026-11-13-visual-odometry/README.md)
-records the tested source/image identities, native/Docker comparisons, full-workload
-checks and remaining limits.
+In stationary trials, OAK and D455 each ran Docker VIO with both detectors,
+live video and recording for 15 minutes. Physical mount calibration and accuracy
+under motion remain open. See the [full-workload results](https://github.com/pbeuchat43/robot_deployment/blob/dev/docs/evidence/2026-11-15-vio-release-qualification/README.md)
+and [moving-car acceptance checks](https://github.com/pbeuchat43/robot_deployment/blob/dev/docs/plans/2026-11-12-visual-odometry.md#8-separate-moving-car-acceptance-from-software-integration).
 
 `visual_odometry_interfaces` is independently installable without NVIDIA or a
 camera SDK. `visual_odometry` owns launch presets and the estimate/health adapter.
